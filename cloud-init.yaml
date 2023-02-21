@@ -1,0 +1,14 @@
+#cloud-config
+write_files:
+- path: /etc/rancher/k3s/config.yaml
+  owner: root:root
+  permissions: '0644'
+  content: |
+    tls-san:
+    - "k3s.multipass"
+    write-kubeconfig-mode: "0644"
+runcmd:
+- echo 127.0.1.1 k3s k3s.multipass >> /etc/hosts
+- echo k3s > /etc/hostname
+- hostname k3s
+- curl -sfL https://get.k3s.io | sh -
