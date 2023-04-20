@@ -2,7 +2,7 @@
 
 set -e
 
-multipass launch -n k3s -m 8G -c 8 -d 20G --cloud-init ./cloud-init.yaml
+multipass launch -n k3s -m 16G -c 16 -d 100G --cloud-init ./cloud-init-with-docker.yaml
 
 ip=$(multipass info k3s --format json | jq -r '.info.k3s.ipv4[0]')
 

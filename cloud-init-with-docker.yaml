@@ -1,4 +1,6 @@
 #cloud-config
+packages:
+- socat
 write_files:
 - path: /etc/rancher/k3s/config.yaml
   owner: root:root
@@ -7,9 +9,35 @@ write_files:
     tls-san:
     - "k3s.multipass"
     docker: true
-    # disable:
-    # - traefik
     write-kubeconfig-mode: "0644"
+- path: /etc/docker/daemon.json
+  owner: root:root
+  permissions: '0644'
+  content: |
+    {
+      "builder": {
+        "gc": {
+          "defaultKeepStorage": "20GB",
+          "enabled": true
+        }
+      },
+      "experimental": false,
+      "features": {
+        "buildkit": true
+      },
+      "hosts": [
+        "tcp://0.0.0.0:2375",
+        "unix:///var/run/docker.sock"
+      ],
+      "tls": false
+    }
+- path: /etc/systemd/system/docker.service.d/override.conf
+  owner: root:root
+  permissions: '0644'
+  content: |
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/dockerd --containerd=/run/containerd/containerd.sock
 runcmd:
 - echo 127.0.1.1 k3s k3s.multipass >> /etc/hosts
 - echo k3s > /etc/hostname
@@ -24,5 +52,4 @@ runcmd:
 - echo "export DOCKER_BUILDKIT=1" >> /home/ubuntu/.bashrc
 
 # TODO - zsh add profile
-# TODO - DOCKER_BUILDKIT=1
 # Remote docker?
